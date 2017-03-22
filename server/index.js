@@ -2,12 +2,13 @@
 
 const express = require('express');
 const logger = require('./logger');
-
+// const debug = require('debug')('express-sequelize');
 const argv = require('minimist')(process.argv.slice(2));
 const setup = require('./middlewares/frontendMiddleware');
 const isDev = process.env.NODE_ENV !== 'production';
 const ngrok = (isDev && process.env.ENABLE_TUNNEL) || argv.tunnel ? require('ngrok') : false;
 const resolve = require('path').resolve;
+const models = require('../db/models');
 const app = express();
 
 // If you need a backend, e.g. an API, add your custom backend-specific middleware here
@@ -27,21 +28,23 @@ const prettyHost = customHost || 'localhost';
 const port = argv.port || process.env.PORT || 3000;
 
 // Start your app.
-app.listen(port, host, (err) => {
-  if (err) {
-    return logger.error(err.message);
-  }
+models.sequelize.sync().then(() => {
+  app.listen(port, host, (err) => {
+    if (err) {
+      return logger.error(err.message);
+    }
 
-  // Connect to ngrok in dev mode
-  if (ngrok) {
-    ngrok.connect(port, (innerErr, url) => {
-      if (innerErr) {
-        return logger.error(innerErr);
-      }
+    // Connect to ngrok in dev mode
+    if (ngrok) {
+      ngrok.connect(port, (innerErr, url) => {
+        if (innerErr) {
+          return logger.error(innerErr);
+        }
 
-      logger.appStarted(port, prettyHost, url);
-    });
-  } else {
-    logger.appStarted(port, prettyHost);
-  }
+        logger.appStarted(port, prettyHost, url);
+      });
+    } else {
+      logger.appStarted(port, prettyHost);
+    }
+  });
 });
