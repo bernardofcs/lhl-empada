@@ -1,12 +1,14 @@
 'use strict';
 module.exports = function(sequelize, DataTypes) {
-  var manager_user = sequelize.define('manager_user', {
+  const manager_user = sequelize.define('manager_user', {
     user_id: DataTypes.INTEGER,
     project_id: DataTypes.INTEGER
   }, {
     classMethods: {
-      associate: function(models) {
+      associate: (models) => {
         // associations can be defined here
+        manager_user.belongsTo(models.User)
+        manager_user.belongsTo(models.Project)
       }
     }
   });

@@ -1,6 +1,6 @@
 'use strict';
 module.exports = function(sequelize, DataTypes) {
-  var task = sequelize.define('task', {
+  var Task = sequelize.define('Task', {
     project_id: DataTypes.INTEGER,
     task_name: DataTypes.STRING,
     task_description: DataTypes.STRING,
@@ -10,8 +10,9 @@ module.exports = function(sequelize, DataTypes) {
     classMethods: {
       associate: function(models) {
         // associations can be defined here
+        Task.belongsTo(models.Project)
       }
     }
   });
-  return task;
+  return Task;
 };
